@@ -1,7 +1,7 @@
 package helper
 
 import (
-	base "dend-qrcode"
+	base "dend-qrcode/internal/base"
 	"flag"
 	"fmt"
 	"image"
