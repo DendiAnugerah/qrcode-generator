@@ -6,8 +6,11 @@ import (
 	"fmt"
 	"image"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"os"
+
+	"github.com/google/uuid"
 )
 
 var (
@@ -45,7 +48,9 @@ func HandlerQRCode(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	outputPath := fmt.Sprintf("%s/qr.png", *outputDirectory)
+	uuidNew := uuid.New()
+
+	outputPath := fmt.Sprintf("%s/%s.png", *outputDirectory, &uuidNew)
 	outputFile, err := os.Create(outputPath)
 	if err != nil {
 		http.Error(w, "Failed to create output file", http.StatusInternalServerError)
@@ -58,6 +63,15 @@ func HandlerQRCode(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to save QR code", http.StatusInternalServerError)
 		return
 	}
+
+	fileBytes, err := ioutil.ReadFile(outputPath)
+	if err != nil {
+		http.Error(w, "Failed to read QR code", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "image/png")
+	w.Write(fileBytes)
 
 	fmt.Fprintf(w, "QR code with logo created and saved at %s\n", outputPath)
 }
